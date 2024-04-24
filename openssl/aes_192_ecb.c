@@ -1,7 +1,6 @@
 /**
  * @file aes_192_ecb.c
- * @brief Demontration of a benign run of AES 192 ECB.
- * This file contains a program to demonstrate running an encryption of AES 128 ECB.
+ * @brief Demontration of AES192 ECB encryption.
  */
 
 #include <openssl/evp.h>

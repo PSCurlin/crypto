@@ -1,7 +1,6 @@
 /**
  * @file aes_256_ecb.c
- * @brief Demontration of a benign run of AES 256 ECB.
- * This file contains a program to demonstrate running an encryption of AES 128 ECB.
+ * @brief Demontration of AES256 ECB encryption.
  */
 
 #include <openssl/evp.h>

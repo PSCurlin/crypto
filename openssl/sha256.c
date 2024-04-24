@@ -1,7 +1,6 @@
 /**
- * @file aes_128_ecb.c
- * @brief Demontration of a benign run of AES 128 ECB.
- * This file contains a program to demonstrate running an encryption of AES 128 ECB.
+ * @file sha256.c
+ * @brief Demontration of SHA256 hashing.
  */
 
 #include <openssl/evp.h>
