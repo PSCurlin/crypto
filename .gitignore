@@ -1,0 +1,7 @@
+.devcontainer/
+*
+!*/
+!openssl/**/*.c
+!openssl/**/Makefile
+!*.md
+!.gitignore

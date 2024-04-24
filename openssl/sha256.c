@@ -7,6 +7,7 @@
 #include <openssl/evp.h>
 #include <openssl/crypto.h>
 #include <openssl/err.h>
+#include <openssl/sha.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -14,17 +15,9 @@
 // Defines
 // ============================================================================
 /**
- * @brief The number of encryptions.
+ * @brief The number of iterations.
  */
-#define NUM_ENCRYPTIONS (20*1000)
-
-/**
- * @brief The AES key.
- */
-unsigned char key[] = {
-    0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 
-    0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff
-};
+#define NUM_ITERATIONS (20*1000)
 
 // ============================================================================
 // Prototypes
@@ -46,24 +39,16 @@ void handleErrors(void) {
 /**
  * @brief Main encryption function.
  */
-int encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *key, unsigned char *ciphertext) {
-    EVP_CIPHER_CTX *ctx;
-    int len;
-    int ciphertext_len;
+void hash(const char *msg, unsigned char digest[SHA256_DIGEST_LENGTH]) {
+    EVP_MD_CTX *ctx;
 
-    if(!(ctx = EVP_CIPHER_CTX_new())) handleErrors();
-    if(1 != EVP_EncryptInit_ex(ctx, EVP_aes_128_ecb(), NULL, key, NULL)) handleErrors();
-    if(1 != EVP_EncryptUpdate(ctx, ciphertext, &len, plaintext, plaintext_len)) handleErrors();
+    if((ctx = EVP_MD_CTX_new()) == NULL) handleErrors();
 
-    ciphertext_len = len;
-
-    if(1 != EVP_EncryptFinal_ex(ctx, ciphertext + len, &len)) handleErrors();
+    if(1 != EVP_DigestInit_ex(ctx, EVP_sha256(), NULL)) handleErrors();
+    if(1 != EVP_DigestUpdate(ctx, msg, strlen(msg))) handleErrors();
+    if(1 != EVP_DigestFinal_ex(ctx, digest, NULL)) handleErrors();
+    EVP_MD_CTX_free(ctx);
     
-    ciphertext_len += len;
-
-    EVP_CIPHER_CTX_free(ctx);
-
-    return ciphertext_len;
 }
  
 /**!
@@ -71,20 +56,23 @@ int encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *key, uns
  */
 int main(void) {
 
-    printf("-> Will run AES encryption.\n");
+    printf("-> Will run SHA256 hashing.\n");
     printf("[*] OpenSSL version: %s\n", SSLeay_version(SSLEAY_VERSION));
+    printf("[*] Number of iterations: %u\n", NUM_ITERATIONS);
 
-    unsigned char plaintext[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    unsigned char ciphertext[128];
+    unsigned char msg[] = "The quick brown fox jumps over the lazy dog";
+    unsigned char digest[SHA256_DIGEST_LENGTH];
 
-    int ciphertext_len;
     // Begin encryption
-    for (int n = 0; n < NUM_ENCRYPTIONS; n++) {
-        ciphertext_len = encrypt(plaintext, strlen((char *) plaintext), key, ciphertext);
+    for (int n = 0; n < NUM_ITERATIONS; n++) {
+        // Randomize the message
+        for (size_t j = 0; j < strlen((char *) msg); j++) msg[j] = rand() % 256;
+        hash((const char *) msg, digest);
     }
 
-    printf("Ciphertext is: ");
-    BIO_dump_fp(stdout, (const char *)ciphertext, ciphertext_len);
+    printf("\n");
+    BIO_dump_fp(stdout, (const char *)digest, SHA256_DIGEST_LENGTH);
+    printf("\n");
 
     // Clean up
     fflush(stdout);
