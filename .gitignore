@@ -1,6 +1,9 @@
 .devcontainer/
 *
 !*/
+
+!argon2/**/*.c
+!argon2/**/Makefile
 !openssl/**/*.c
 !openssl/**/Makefile
 !*.md

@@ -1,6 +1,8 @@
 /**
  * @file aes_192_ecb.c
  * @brief Demontration of AES192 ECB encryption.
+ * Adapted from:
+ * - https://wiki.openssl.org/images/1/17/Evp-symmetric-encrypt.c
  */
 
 // ============================================================================
@@ -77,13 +79,14 @@ int main(void) {
     unsigned char plaintext[] = "The quick brown fox jumps over the lazy dog";
     unsigned char ciphertext[AES_BLOCK_SIZE];
 
+    int plaintext_len = strlen((char *)plaintext);
     int ciphertext_len;
 
     // Begin encryption
     for (int n = 0; n < NUM_ITERATIONS; n++) {
         // Randomize the plaintext
-        for (size_t j = 0; j < strlen((char *) plaintext); ++j) plaintext[j] = rand() % 256;
-        ciphertext_len = encrypt(plaintext, strlen((char *) plaintext), key, ciphertext);
+        for (size_t j = 0; j < plaintext_len; ++j) plaintext[j] = rand() % 256;
+        ciphertext_len = encrypt(plaintext, plaintext_len, key, ciphertext);
     }
 
     printf("\n");
