@@ -3,6 +3,9 @@
  * @brief Demontration of SHA256 hashing.
  */
 
+// ============================================================================
+// Includes
+// ============================================================================
 #include <openssl/evp.h>
 #include <openssl/crypto.h>
 #include <openssl/err.h>
@@ -16,13 +19,13 @@
 /**
  * @brief The number of iterations.
  */
-#define NUM_ITERATIONS (20*1000)
+#define NUM_ITERATIONS (20*1000) // !! CHANGEME !!
 
 // ============================================================================
 // Prototypes
 // ============================================================================
 void handleErrors(void);
-int encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *key, unsigned char *ciphertext);
+void hash(const char *msg, unsigned char digest[SHA256_DIGEST_LENGTH]);
 
 // ============================================================================
 // Functions

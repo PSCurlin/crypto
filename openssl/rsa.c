@@ -1,15 +1,15 @@
 /**
- * @file aes_192_ecb.c
- * @brief Demontration of AES192 ECB encryption.
+ * @file rsa.c
+ * @brief Demontration of RSA encryption.
  */
 
 // ============================================================================
 // Includes
 // ============================================================================
 #include <openssl/evp.h>
-#include <openssl/crypto.h>
+#include <openssl/rsa.h>
 #include <openssl/err.h>
-#include <openssl/aes.h>
+#include <openssl/rand.h>
 #include <string.h>
 
 // ============================================================================
@@ -24,7 +24,7 @@
 // Prototypes
 // ============================================================================
 void handleErrors(void);
-int encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *key, unsigned char *ciphertext);
+int encrypt(EVP_PKEY *pubkey, unsigned char *plaintext, int plaintext_len, unsigned char *ciphertext);
 
 // ============================================================================
 // Functions
@@ -40,50 +40,45 @@ void handleErrors(void) {
 /**
  * @brief Main encryption function.
  */
-int encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *key, unsigned char *ciphertext) {
-    EVP_CIPHER_CTX *ctx;
-    int len;
-    int ciphertext_len;
+int encrypt(EVP_PKEY *pubkey, unsigned char *plaintext, int plaintext_len, unsigned char *ciphertext) {
+    EVP_PKEY_CTX *ctx;
+    size_t outlen = EVP_PKEY_size(pubkey);
 
-    if(!(ctx = EVP_CIPHER_CTX_new())) handleErrors();
-    if(1 != EVP_EncryptInit_ex(ctx, EVP_aes_192_ecb(), NULL, key, NULL)) handleErrors();
-    if(1 != EVP_EncryptUpdate(ctx, ciphertext, &len, plaintext, plaintext_len)) handleErrors();
+    if(!(ctx = EVP_PKEY_CTX_new(pubkey, NULL))) handleErrors();
+    if(1 != EVP_PKEY_encrypt_init(ctx)) handleErrors();
+    if(1 != EVP_PKEY_encrypt(ctx, ciphertext, &outlen, plaintext, plaintext_len)) handleErrors();
 
-    ciphertext_len = len;
+    EVP_PKEY_CTX_free(ctx);
 
-    if(1 != EVP_EncryptFinal_ex(ctx, ciphertext + len, &len)) handleErrors();
-    
-    ciphertext_len += len;
-
-    EVP_CIPHER_CTX_free(ctx);
-
-    return ciphertext_len;
+    return outlen;
 }
- 
+
 /**!
  * @brief Main function.
  */
-int main(void) {
+int main() {
 
-    printf("-> Will run AES-256 ECB encryption.\n");
+    printf("-> Will run RSA encryption.\n");
     printf("[*] OpenSSL version: %s\n", SSLeay_version(SSLEAY_VERSION));
     printf("[*] Number of iterations: %u\n", NUM_ITERATIONS);
 
-    unsigned char key[] = {
-        0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 
-        0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff
-    };
+    // Initialize key
+    EVP_PKEY_CTX *pkey_ctx;
+    EVP_PKEY *pkey = NULL;
+    if(!(pkey_ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, NULL))) handleErrors();
+    if(1 != EVP_PKEY_keygen_init(pkey_ctx)) handleErrors();
+    if(1 != EVP_PKEY_keygen(pkey_ctx, &pkey)) handleErrors();
 
     unsigned char plaintext[] = "The quick brown fox jumps over the lazy dog";
-    unsigned char ciphertext[AES_BLOCK_SIZE];
+    unsigned char ciphertext[4096];
 
+    int plaintext_len = strlen((char *)plaintext);
     int ciphertext_len;
 
     // Begin encryption
     for (int n = 0; n < NUM_ITERATIONS; n++) {
-        // Randomize the plaintext
-        for (size_t j = 0; j < strlen((char *) plaintext); ++j) plaintext[j] = rand() % 256;
-        ciphertext_len = encrypt(plaintext, strlen((char *) plaintext), key, ciphertext);
+        for (size_t j = 0; j < ciphertext_len; ++j) plaintext[j] = rand() % 256;
+        ciphertext_len = encrypt(pkey, plaintext, plaintext_len, ciphertext);
     }
 
     printf("\n");
@@ -92,5 +87,7 @@ int main(void) {
 
     // Clean up
     fflush(stdout);
+    EVP_PKEY_free(pkey);
+    EVP_PKEY_CTX_free(pkey_ctx);
     return EXIT_SUCCESS;
 }

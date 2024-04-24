@@ -1,5 +1,5 @@
 CC = gcc
-CCFLAGS = -Wall -O3
+CCFLAGS = -Wall -O0 -g
 LDFLAGS = -lcrypto
 
 SOURCES = $(wildcard *.c)

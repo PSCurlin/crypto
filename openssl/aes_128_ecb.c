@@ -3,11 +3,13 @@
  * @brief Demontration of AES128 ECB encryption.
  */
 
+// ============================================================================
+// Includes
+// ============================================================================
 #include <openssl/evp.h>
 #include <openssl/crypto.h>
 #include <openssl/err.h>
 #include <openssl/aes.h>
-#include <stdint.h>
 #include <string.h>
 
 // ============================================================================
@@ -16,7 +18,7 @@
 /**
  * @brief The number of iterations.
  */
-#define NUM_ITERATIONS (20*1000)
+#define NUM_ITERATIONS (20*1000) // !! CHANGEME !!
 
 // ============================================================================
 // Prototypes
@@ -87,7 +89,6 @@ int main(void) {
     printf("\n");
     BIO_dump_fp(stdout, (const char *)ciphertext, ciphertext_len);
     printf("\n");
-
 
     // Clean up
     fflush(stdout);
