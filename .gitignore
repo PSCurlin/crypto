@@ -3,6 +3,7 @@
 !*/
 
 !openssl/**/*.c
+!openssl/**/*.h
 !openssl/**/Makefile
 !*.md
 !.gitignore

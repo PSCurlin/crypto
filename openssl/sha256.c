@@ -3,40 +3,8 @@
  * @brief Demontration of SHA256 hashing.
  */
 
-// ============================================================================
-// Includes
-// ============================================================================
-#include <openssl/evp.h>
-#include <openssl/crypto.h>
-#include <openssl/err.h>
 #include <openssl/sha.h>
-#include <stdint.h>
-#include <string.h>
-
-// ============================================================================
-// Defines
-// ============================================================================
-/**
- * @brief The number of iterations.
- */
-#define NUM_ITERATIONS (20*1000) // !! CHANGEME !!
-
-// ============================================================================
-// Prototypes
-// ============================================================================
-void handleErrors(void);
-void hash(const char *msg, unsigned char digest[SHA256_DIGEST_LENGTH]);
-
-// ============================================================================
-// Functions
-// ============================================================================
-/**
- * @brief Error handler for EVP functions.
- */
-void handleErrors(void) {
-    ERR_print_errors_fp(stderr);
-    abort();
-}
+#include "utils.h"
 
 /**
  * @brief Main encryption function.
@@ -56,17 +24,25 @@ void hash(const char *msg, unsigned char digest[SHA256_DIGEST_LENGTH]) {
 /**!
  * @brief Main function.
  */
-int main(void) {
+int main(int argc, char** argv) {
+
+    size_t num_trials;
+    if (argc > 1) {
+        num_trials = atoi(argv[1]); // The number of trials to run the experiment for
+    }
+    else {
+        usage(argv);
+    }
 
     printf("-> Will run SHA256 hashing.\n");
     printf("[*] OpenSSL version: %s\n", SSLeay_version(SSLEAY_VERSION));
-    printf("[*] Number of iterations: %u\n", NUM_ITERATIONS);
+    printf("[*] Number of iterations: %lu\n", num_trials);
 
     unsigned char msg[] = "The quick brown fox jumps over the lazy dog";
     unsigned char digest[SHA256_DIGEST_LENGTH];
 
     // Begin encryption
-    for (int n = 0; n < NUM_ITERATIONS; n++) {
+    for (int n = 0; n < num_trials; n++) {
         // Randomize the message
         for (size_t j = 0; j < strlen((char *) msg); j++) msg[j] = rand() % 256;
         hash((const char *) msg, digest);

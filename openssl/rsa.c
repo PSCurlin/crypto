@@ -3,39 +3,8 @@
  * @brief Demontration of RSA encryption.
  */
 
-// ============================================================================
-// Includes
-// ============================================================================
-#include <openssl/evp.h>
 #include <openssl/rsa.h>
-#include <openssl/err.h>
-#include <openssl/rand.h>
-#include <string.h>
-
-// ============================================================================
-// Defines
-// ============================================================================
-/**
- * @brief The number of iterations.
- */
-#define NUM_ITERATIONS (20*1000) // !! CHANGEME !!
-
-// ============================================================================
-// Prototypes
-// ============================================================================
-void handleErrors(void);
-int encrypt(EVP_PKEY *pubkey, unsigned char *plaintext, int plaintext_len, unsigned char *ciphertext);
-
-// ============================================================================
-// Functions
-// ============================================================================
-/**
- * @brief Error handler for EVP functions.
- */
-void handleErrors(void) {
-    ERR_print_errors_fp(stderr);
-    abort();
-}
+#include "utils.h"
 
 /**
  * @brief Main encryption function.
@@ -56,11 +25,19 @@ int encrypt(EVP_PKEY *pubkey, unsigned char *plaintext, int plaintext_len, unsig
 /**!
  * @brief Main function.
  */
-int main() {
+int main(int argc, char** argv) {
+
+    size_t num_trials;
+    if (argc > 1) {
+        num_trials = atoi(argv[1]); // The number of trials to run the experiment for
+    }
+    else {
+        usage(argv);
+    }
 
     printf("-> Will run RSA encryption.\n");
     printf("[*] OpenSSL version: %s\n", SSLeay_version(SSLEAY_VERSION));
-    printf("[*] Number of iterations: %u\n", NUM_ITERATIONS);
+    printf("[*] Number of iterations: %lu\n", num_trials);
 
     // Initialize key
     EVP_PKEY_CTX *pkey_ctx;
@@ -76,7 +53,7 @@ int main() {
     int ciphertext_len;
 
     // Begin encryption
-    for (int n = 0; n < NUM_ITERATIONS; n++) {
+    for (int n = 0; n < num_trials; n++) {
         for (size_t j = 0; j < ciphertext_len; ++j) plaintext[j] = rand() % 256;
         ciphertext_len = encrypt(pkey, plaintext, plaintext_len, ciphertext);
     }

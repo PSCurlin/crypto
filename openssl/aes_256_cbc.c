@@ -5,39 +5,8 @@
  * - https://wiki.openssl.org/images/1/17/Evp-symmetric-encrypt.c
  */
 
-// ============================================================================
-// Includes
-// ============================================================================
-#include <openssl/evp.h>
-#include <openssl/crypto.h>
-#include <openssl/err.h>
 #include <openssl/aes.h>
-#include <string.h>
-
-// ============================================================================
-// Defines
-// ============================================================================
-/**
- * @brief The number of iterations.
- */
-#define NUM_ITERATIONS (20*1000) // !! CHANGEME !!
-
-// ============================================================================
-// Prototypes
-// ============================================================================
-void handleErrors(void);
-int encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *key, unsigned char *iv, unsigned char *ciphertext);
-
-// ============================================================================
-// Functions
-// ============================================================================
-/**
- * @brief Error handler for EVP functions.
- */
-void handleErrors(void) {
-    ERR_print_errors_fp(stderr);
-    abort();
-}
+#include "utils.h"
 
 /**
  * @brief Main encryption function.
@@ -65,10 +34,19 @@ int encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *key, uns
 /**!
  * @brief Main function.
  */
-int main(void) {
+int main(int argc, char** argv) {
+
+    size_t num_trials;
+    if (argc > 1) {
+        num_trials = atoi(argv[1]); // The number of trials to run the experiment for
+    }
+    else {
+        usage(argv);
+    }
+
     printf("-> Will run AES-256 CBC encryption.\n");
     printf("[*] OpenSSL version: %s\n", SSLeay_version(SSLEAY_VERSION));
-    printf("[*] Number of iterations: %u\n", NUM_ITERATIONS);
+    printf("[*] Number of iterations: %lu\n", num_trials);
 
     // 256-bit key
     unsigned char key[] = {
@@ -86,7 +64,7 @@ int main(void) {
     int ciphertext_len;
 
     // Begin encryption
-    for (int n = 0; n < NUM_ITERATIONS; n++) {
+    for (int n = 0; n < num_trials; n++) {
         // Randomize the plaintext
         for (size_t j = 0; j < plaintext_len; ++j) plaintext[j] = rand() % 256;
         ciphertext_len = encrypt(plaintext, plaintext_len, key, iv, ciphertext);

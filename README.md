@@ -1,6 +1,6 @@
 # Cryptographic Functions
 
-This repository contains example cryptographic
+This repository contains example cryptographic operations.
 
 ## OpenSSL
 
