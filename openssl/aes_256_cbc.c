@@ -58,7 +58,7 @@ int main(int argc, char** argv) {
 
     unsigned char plaintext[AES_BLOCK_SIZE];
     unsigned char iv[AES_BLOCK_SIZE] = "0123456789012345";
-    unsigned char ciphertext[AES_BLOCK_SIZE];
+    unsigned char ciphertext[128];
 
     int ciphertext_len;
 
