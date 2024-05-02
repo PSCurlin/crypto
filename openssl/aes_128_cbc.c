@@ -44,7 +44,7 @@ int main(int argc, char** argv) {
         usage(argv);
     }
 
-    printf("-> Will run AES-128 CCB encryption.\n");
+    printf("-> Will run AES-128 CBC encryption.\n");
     printf("[*] OpenSSL version: %s\n", SSLeay_version(SSLEAY_VERSION));
     printf("[*] Number of iterations: %lu\n", num_trials);
 
@@ -54,18 +54,17 @@ int main(int argc, char** argv) {
         0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff
     };
 
-    unsigned char plaintext[] = "The quick brown fox jumps over the lazy dog";
+    unsigned char plaintext[AES_BLOCK_SIZE];
     unsigned char iv[AES_BLOCK_SIZE] = "0123456789012345";
     unsigned char ciphertext[AES_BLOCK_SIZE];
 
-    int plaintext_len = strlen((char *)plaintext);
     int ciphertext_len;
 
     // Begin encryption
     for (int n = 0; n < num_trials; n++) {
         // Randomize the plaintext
-        for (size_t j = 0; j < plaintext_len; ++j) plaintext[j] = rand() % 256;
-        ciphertext_len = encrypt(plaintext, plaintext_len, key, iv, ciphertext);
+        for (size_t j = 0; j < AES_BLOCK_SIZE; ++j) plaintext[j] = rand() % 256;
+        ciphertext_len = encrypt(plaintext, AES_BLOCK_SIZE, key, iv, ciphertext);
     }
 
     printf("\n");
